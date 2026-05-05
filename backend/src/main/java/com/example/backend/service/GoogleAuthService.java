@@ -18,14 +18,16 @@ import java.util.Collections;
 public class GoogleAuthService {
 
     private final UserRepository userRepository;
+    private final GoogleTokenVerifier googleTokenVerifier;
 
-    public GoogleAuthService(UserRepository userRepository) {
+    public GoogleAuthService(UserRepository userRepository, GoogleTokenVerifier googleTokenVerifier) {
         this.userRepository = userRepository;
+        this.googleTokenVerifier = googleTokenVerifier;
     }
 
     public User authenticate(String idToken, HttpServletRequest request) throws Exception {
 
-        Payload payload = GoogleTokenVerifier.verify(idToken);
+        Payload payload = googleTokenVerifier.verify(idToken);
 
         String name = (String) payload.get("name");
         String providerId = payload.getSubject();

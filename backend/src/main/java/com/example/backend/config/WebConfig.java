@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
     // これにより、application.propertiesに書くのと同じ効果が得られます
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix("/api", c -> true);
+        configurer.addPathPrefix("", c -> true);
     }
 
     // ✅ CORS (Allow Origin) の一括設定
