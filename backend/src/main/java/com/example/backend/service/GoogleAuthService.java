@@ -1,18 +1,19 @@
 package com.example.backend.service;
+
 import com.example.backend.config.GoogleTokenVerifier;
-import com.example.backend.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Service;
 import com.example.backend.model.User;
+import com.example.backend.repository.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.UUID;
 
 @Service
 public class GoogleAuthService {
@@ -37,6 +38,7 @@ public class GoogleAuthService {
                     User newUser = new User();
                     newUser.setProviderId(providerId);
                     newUser.setName(name);
+                    newUser.setSecretSlug(UUID.randomUUID().toString().substring(0, 8));
                     return userRepository.save(newUser);
                 });
 

@@ -37,4 +37,16 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findByProviderId(String providerId) {
+        return userRepository.findByProviderId(providerId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findBySecretSlug(String secretSlug) {
+        return userRepository.findBySecretSlug(secretSlug);
+    }
+
 }

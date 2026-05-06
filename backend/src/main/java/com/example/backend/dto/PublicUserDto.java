@@ -1,5 +1,6 @@
 package com.example.backend.dto;
 
+
 import lombok.Value;
 
 import java.io.Serializable;
@@ -8,11 +9,9 @@ import java.io.Serializable;
  * DTO for {@link com.example.backend.model.User}
  */
 @Value
-public class UserDto implements Serializable {
+public class PublicUserDto implements Serializable {
     Integer id;
-    String providerId;
-    Integer githubId;
     String name;
     Boolean isPublic;
-    String email;
 }
+

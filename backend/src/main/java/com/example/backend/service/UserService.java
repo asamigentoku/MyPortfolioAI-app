@@ -11,4 +11,6 @@ public interface UserService {
     User save(User user);
     User update(Integer id, User user);
     void deleteById(Integer id);
+    Optional<User> findByProviderId(String providerId);
+    Optional<User> findBySecretSlug(String secretSlug);
 }
