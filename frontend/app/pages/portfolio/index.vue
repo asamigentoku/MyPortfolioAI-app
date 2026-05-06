@@ -85,9 +85,15 @@ function fd(iso: string) {
 const levelLabels = ['', '初級', '初中級', '中級', '上級', 'エキスパート']
 function levelLabel(n: number) { return levelLabels[n] ?? '' }
 
-const map: Record<string, Skill[]> = {}
-for (const s of profile.skills) { (map[s.category] ??= []).push(s) }
-return map
+// 修正箇所：computed をインポートし、定義を正しく閉じます
+import { computed } from 'vue'
+
+const skillGroups = computed(() => {
+  const map: Record<string, Skill[]> = {}
+  for (const s of profile.skills) {
+    (map[s.category] ??= []).push(s)
+  }
+  return map
 })
 </script>
 
