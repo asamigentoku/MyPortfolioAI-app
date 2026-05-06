@@ -32,7 +32,7 @@ public class AuthController {
         try {
             User user = googleAuthService.authenticate(idToken, request);
             String jwt = jwtUtil.generateToken(user.getId(), user.getName());
-            return Map.of("token", jwt);
+            return Map.of("token", jwt,"userName",user.getName(),"userId",user.getId().toString());
 
         } catch (Exception e) {
             throw new RuntimeException("Google認証に失敗しました: " + e.getMessage());
