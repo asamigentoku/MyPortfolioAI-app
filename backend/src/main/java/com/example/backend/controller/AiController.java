@@ -2,6 +2,7 @@ package com.example.backend.controller;
 
 import com.example.backend.service.GroqProfileService;
 import com.example.backend.service.ProfileCacheService;
+import com.example.backend.service.ProfileSaveService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,10 +15,12 @@ public class AiController {
 
     private final GroqProfileService groqProfileService;
     private final ProfileCacheService profileCacheService;
+    private final ProfileSaveService profileSaveService;
 
-    public AiController(GroqProfileService groqProfileService,ProfileCacheService profileCacheService) {
+    public AiController(GroqProfileService groqProfileService,ProfileCacheService profileCacheService,ProfileSaveService profileSaveService) {
         this.groqProfileService = groqProfileService;
         this.profileCacheService = profileCacheService;
+        this.profileSaveService=profileSaveService;
     }
 
     @PostMapping("/profile-structure")
@@ -34,10 +37,38 @@ public class AiController {
         );
     }
 
+    @PostMapping("/profile-structure/cache_key")
+    public ProfileStructureResponse getProfileByCacheKey(@RequestBody String cacheKey) throws Exception {
+        JsonNode json = profileCacheService.get(cacheKey);
+        if (json == null) {
+            throw new IllegalArgumentException("キャッシュが見つかりません: " + cacheKey);
+        }
+        return new ProfileStructureResponse(
+                cacheKey,
+                json.path("careers"),
+                json.path("licenses"),
+                json.path("projects"),
+                json.path("skills")
+        );
+
+    }
+
+    @PostMapping("/profile-structure/save")
+    public void saveProfileStructure(@RequestBody SaveProfileRequest request) throws Exception {
+        JsonNode json = profileCacheService.get(request.cacheKey());
+        if (json == null) {
+            throw new IllegalArgumentException("キャッシュが見つかりません: " + request.cacheKey());
+        }
+        profileSaveService.saveAll(request.userId(), json);
+    }
+
     public record GenerateProfileRequest(
             String profileInfo
-    ) {
-    }
+    ) { }
+    public record SaveProfileRequest(
+            String cacheKey,
+            Integer userId
+    ) {}
 
     public record ProfileStructureResponse(
             String cacheKey,
@@ -47,4 +78,5 @@ public class AiController {
             JsonNode skills
     ) {
     }
+
 }
