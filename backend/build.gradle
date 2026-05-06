@@ -49,6 +49,9 @@ dependencies {
 
 	// LombokとMapStructを連携させるためのバインディング
 	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+	//redisに一時的に追加する
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 
