@@ -29,6 +29,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 認証不要
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        //開発ように解放
+                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
                         // それ以外は認証必要
