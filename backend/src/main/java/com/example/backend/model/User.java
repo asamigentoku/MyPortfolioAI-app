@@ -19,6 +19,11 @@ public class User {
     private String name;
     private String email;
 
+    @Column(unique = true,nullable = true)
+    private String secretSlug;
+
+    private Boolean isPublic=false; // 公開設定
+
     //skills.userを親としている
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Skill> skills;

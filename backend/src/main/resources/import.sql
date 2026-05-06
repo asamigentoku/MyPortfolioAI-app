@@ -1,11 +1,13 @@
 -- =====================
 -- users
 -- =====================
-INSERT INTO users (id, provider_id, github_id, name, email) VALUES (1, 'google-oauth2|111111111', 101, '山田 太郎', 'taro@example.com');
-INSERT INTO users (id, provider_id, github_id, name, email) VALUES (2, 'google-oauth2|222222222', 102, '鈴木 花子', 'hanako@example.com');
-INSERT INTO users (id, provider_id, github_id, name, email) VALUES (3, 'google-oauth2|333333333', 103, '佐藤 健', 'ken@example.com');
-INSERT INTO users (id, provider_id, github_id, name, email) VALUES (4, 'google-oauth2|444444444', 104, '田中 美咲', 'misaki@example.com');
-INSERT INTO users (id, provider_id, github_id, name, email) VALUES (5, 'google-oauth2|555555555', 105, '伊藤 龍之介', 'ryunosuke@example.com');
+INSERT INTO users (id, provider_id, github_id, name, email) VALUES (1, '111111111', 101, '山田 太郎', 'taro@example.com');
+INSERT INTO users (id, provider_id, github_id, name, email) VALUES (2, '222222222', 102, '鈴木 花子', 'hanako@example.com');
+INSERT INTO users (id, provider_id, github_id, name, email) VALUES (3, '333333333', 103, '佐藤 健', 'ken@example.com');
+INSERT INTO users (id, provider_id, github_id, name, email) VALUES (4, '444444444', 104, '田中 美咲', 'misaki@example.com');
+INSERT INTO users (id, provider_id, github_id, name, email) VALUES (5, '555555555', 105, '伊藤 龍之介', 'ryunosuke@example.com');
+
+ALTER TABLE users ALTER COLUMN id RESTART WITH 6;
 
 
 -- =====================

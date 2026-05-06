@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/licenses")
+@RequestMapping("/api/v1/licenses")
 @RequiredArgsConstructor
 public class LicenseController {
 
