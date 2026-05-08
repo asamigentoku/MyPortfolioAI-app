@@ -64,6 +64,7 @@ INSERT INTO skills (id, user_id, name, level, description, is_framework, categor
 INSERT INTO skills (id, user_id, name, level, description, is_framework, category) VALUES (39, 5, 'MongoDB',     3, 'ドキュメント設計・Aggregation Pipeline',          false, 'Database');
 INSERT INTO skills (id, user_id, name, level, description, is_framework, category) VALUES (40, 5, 'Nginx',       3, 'リバースプロキシ・SSL/TLS設定',                   false, 'Infrastructure');
 
+ALTER TABLE skills ALTER COLUMN id RESTART WITH 41;
 
 -- =====================
 -- projects
@@ -89,6 +90,7 @@ INSERT INTO projects (id, user_id, title, explanation, url, github_url, is_githu
 INSERT INTO projects (id, user_id, title, explanation, url, github_url, is_github) VALUES (9,  5, '予約管理システム',       'Laravel + ReactによるサロンむけWeb予約管理システム',            'https://reserve.ryu.example.com',     'https://github.com/ryu/reservation', true);
 INSERT INTO projects (id, user_id, title, explanation, url, github_url, is_github) VALUES (10, 5, 'ブログCMSプラットフォーム', 'Ruby on Rails製のマルチユーザー対応ブログCMS',               'https://cms.ryu.example.com',         'https://github.com/ryu/blog-cms',   true);
 
+ALTER TABLE projects ALTER COLUMN id RESTART WITH 11;
 
 -- project_skill 中間テーブル
 -- project 1 (user1)
@@ -169,6 +171,7 @@ INSERT INTO careers (id, user_id, career_name, time) VALUES (13, 5, '株式会�
 INSERT INTO careers (id, user_id, career_name, time) VALUES (14, 5, '個人事業主 フリーランスエンジニア',               '2021-06-01 00:00:00');
 INSERT INTO careers (id, user_id, career_name, time) VALUES (15, 5, '○○大学 経営情報学科 卒業',                       '2021-03-31 00:00:00');
 
+ALTER TABLE careers ALTER COLUMN id RESTART WITH 16;
 
 -- =====================
 -- licenses
@@ -198,3 +201,5 @@ INSERT INTO licenses (id, user_id, license_name, created_at) VALUES (17, 5, '基
 INSERT INTO licenses (id, user_id, license_name, created_at) VALUES (18, 5, '情報セキュリティマネジメント試験',       '2021-11-01');
 INSERT INTO licenses (id, user_id, license_name, created_at) VALUES (19, 5, 'AWS Solutions Architect Associate',     '2023-01-01');
 INSERT INTO licenses (id, user_id, license_name, created_at) VALUES (20, 5, 'LPIC Level 1',                          '2022-06-01');
+
+ALTER TABLE licenses ALTER COLUMN id RESTART WITH 21;
