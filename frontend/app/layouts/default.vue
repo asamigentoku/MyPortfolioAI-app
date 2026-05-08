@@ -14,6 +14,7 @@
     </header>
 
     <!-- メインコンテンツ（ページがここに入る） -->
+    <!-- next.jsでいう{chilidren}-->
     <main class="flex-1 px-4 py-6">
       <slot />
     </main>

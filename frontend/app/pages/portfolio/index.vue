@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const authStore = useAuthStore()
+const { user, isLoggedIn } = storeToRefs(authStore)
 interface Skill {
   name: string
   level: number
@@ -95,6 +97,9 @@ const skillGroups = computed(() => {
   }
   return map
 })
+definePageMeta({
+  layout: "menu"
+});
 </script>
 
 <template>
@@ -103,11 +108,7 @@ const skillGroups = computed(() => {
     <!-- Hero -->
     <header class="hero">
       <p class="eyebrow">ポートフォリオ</p>
-      <h1 class="h-name">山田 太郎</h1>
-      <p class="h-role">Senior Software Engineer — バックエンド / フロントエンド</p>
-      <div class="chips">
-        <span v-for="t in ['Java','Vue 3 / Nuxt','Spring Boot','AWS','PostgreSQL']" :key="t" class="chip">{{ t }}</span>
-      </div>
+      <h1 class="h-name">{{user?.name}}</h1>
     </header>
 
     <!-- Careers -->
