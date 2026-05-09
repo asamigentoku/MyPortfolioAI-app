@@ -14,5 +14,6 @@ public class UserDto implements Serializable {
     Integer githubId;
     String name;
     Boolean isPublic;
-    String email;
 }
+
+

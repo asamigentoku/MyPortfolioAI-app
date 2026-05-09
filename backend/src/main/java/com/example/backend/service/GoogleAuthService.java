@@ -24,9 +24,8 @@ public class GoogleAuthService {
 
         Payload payload = googleTokenVerifier.verify(idToken);
 
-        String name = (String) payload.get("name");
+        String name = "未設定";
         String providerId = payload.getSubject();
-
         User user = userRepository.findByProviderId(providerId)
                 .orElseGet(() -> {
                     User newUser = new User();

@@ -1,4 +1,5 @@
 package com.example.backend.service.logic;
+
 import com.example.backend.model.User;
 import com.example.backend.repository.UserRepository;
 import com.example.backend.service.UserService;
@@ -49,4 +50,27 @@ public class UserServiceImpl implements UserService {
         return userRepository.findBySecretSlug(secretSlug);
     }
 
+    @Override
+    public User updatePublic(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        user.setIsPublic(!Boolean.TRUE.equals(user.getIsPublic()));
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateSecretSlug(Integer userId, String newSlug) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        user.setSecretSlug(newSlug);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateName(Integer userId, String name) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
+        user.setName(name);
+        return userRepository.save(user);
+    }
 }

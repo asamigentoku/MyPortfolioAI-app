@@ -1,15 +1,22 @@
-// composables/useApi.ts
 import createClient from "openapi-fetch";
-import type { paths } from "../pages/types/openapi"; // 生成した型定義のパス
+import type { paths } from "../pages/types/openapi";
 
 export const useApi = () => {
-    const config = useRuntimeConfig();
+    const auth = useAuthStore()
 
-    // クライアントの初期化
-    // 必要に応じて baseUrl を runtimeConfig から取得するように変更してください
     const client = createClient<paths>({
         baseUrl: "http://localhost:8080",
     });
+
+    client.use({
+        async onRequest({ request }) {
+            const token = auth.user?.token
+            if (token) {
+                request.headers.set('Authorization', `Bearer ${token}`)
+            }
+            return request
+        },
+    })
 
     return client;
 };

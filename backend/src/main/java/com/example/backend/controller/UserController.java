@@ -29,11 +29,11 @@ public class UserController {
         return userMapper.toDto(userService.save(user));
     }
 
-    @PutMapping("/{id}")
-    public UserDto update(@PathVariable Integer id, @RequestBody UserDto userDto) {
-        var user = userMapper.toEntity(userDto);
-        return userMapper.toDto(userService.update(id, user));
-    }
+//    @PutMapping("/{id}")
+//    public UserDto update(@PathVariable Integer id, @RequestBody UserDto userDto) {
+//        var user = userMapper.toEntity(userDto);
+//        return userMapper.toDto(userService.update(id, user));
+//    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {

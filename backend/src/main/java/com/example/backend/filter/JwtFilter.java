@@ -31,11 +31,12 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = header.substring(7);
             try {
                 Claims claims = jwtUtil.parseToken(token);
+                String userId = claims.getSubject(); // userId は subject に入っている
                 String name = claims.get("name", String.class);
-
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(
-                                name, null,
+                                userId,   // ← principal を name から userId に変更
+                                null,
                                 List.of(new SimpleGrantedAuthority("ROLE_USER"))
                         );
                 SecurityContextHolder.getContext().setAuthentication(auth);

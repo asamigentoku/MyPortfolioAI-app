@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "update-api": "openapi-typescript http://localhost:8080/v3/api-docs -o ./types/openapi.d.ts"
+    "update-api": "openapi-typescript http://localhost:8080/v3/api-docs -o ./app/pages/types/openapi.d.ts"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",

@@ -27,12 +27,13 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions(f -> f.disable())) // H2コンソール用
                 .authorizeHttpRequests(auth -> auth
-                        // 認証不要
+                        // 認証用
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         //開発ように解放
-                        .requestMatchers("/api/**").permitAll()
+                        //公開用
+                        .requestMatchers("/api/v1/slug/**").permitAll()
+                        //openapi用
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                        .requestMatchers("/h2-console/**").permitAll()
                         // それ以外は認証必要
                         .anyRequest().authenticated()
                 )

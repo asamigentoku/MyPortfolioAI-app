@@ -4,22 +4,6 @@
  */
 
 export interface paths {
-    "/api/v1/users/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["findById"];
-        put: operations["update"];
-        post?: never;
-        delete: operations["delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/skills/{id}": {
         parameters: {
             query?: never;
@@ -28,9 +12,57 @@ export interface paths {
             cookie?: never;
         };
         get: operations["findById_1"];
-        put: operations["update_1"];
+        put: operations["update"];
         post?: never;
         delete: operations["delete_1"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/public_setting/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["togglePublic"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/change_userName/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["changeName"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/change_secretid/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["changeSecretId"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -44,7 +76,7 @@ export interface paths {
             cookie?: never;
         };
         get: operations["findById_2"];
-        put: operations["update_2"];
+        put: operations["update_1"];
         post?: never;
         delete: operations["delete_2"];
         options?: never;
@@ -60,7 +92,7 @@ export interface paths {
             cookie?: never;
         };
         get: operations["findById_3"];
-        put: operations["update_3"];
+        put: operations["update_2"];
         post?: never;
         delete: operations["delete_3"];
         options?: never;
@@ -76,7 +108,7 @@ export interface paths {
             cookie?: never;
         };
         get: operations["findById_4"];
-        put: operations["update_4"];
+        put: operations["update_3"];
         post?: never;
         delete: operations["delete_4"];
         options?: never;
@@ -228,17 +260,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/portfolio/{userId}": {
+    "/api/v1/users/{id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["getData"];
+        get: operations["findById"];
         put?: never;
-        post: operations["addData"];
-        delete?: never;
+        post?: never;
+        delete: operations["delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -252,6 +284,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["findByUserId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/read_setting/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["readSetting"];
         put?: never;
         post?: never;
         delete?: never;
@@ -328,16 +376,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        UserDto: {
-            /** Format: int32 */
-            id?: number;
-            providerId?: string;
-            /** Format: int32 */
-            githubId?: number;
-            name?: string;
-            isPublic?: boolean;
-            email?: string;
-        };
         SkillDto: {
             /** Format: int32 */
             id?: number;
@@ -372,6 +410,15 @@ export interface components {
             /** Format: date-time */
             time?: string;
         };
+        UserDto: {
+            /** Format: int32 */
+            id?: number;
+            providerId?: string;
+            /** Format: int32 */
+            githubId?: number;
+            name?: string;
+            isPublic?: boolean;
+        };
         GenerateProfileRequest: {
             profileInfo?: string;
         };
@@ -388,12 +435,9 @@ export interface components {
             /** Format: int32 */
             userId?: number;
         };
-        UserData: {
-            /** Format: int64 */
-            id?: number;
-            userId?: string;
-            content?: string;
-            category?: string;
+        SettingDto: {
+            isPublic?: boolean;
+            secretSlug?: string;
         };
         PublicProfileDto: {
             user?: components["schemas"]["PublicUserDto"];
@@ -417,74 +461,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    findById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDto"];
-                };
-            };
-        };
-    };
-    update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserDto"];
-            };
-        };
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["UserDto"];
-                };
-            };
-        };
-    };
-    delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description OK */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     findById_1: {
         parameters: {
             query?: never;
@@ -507,7 +483,7 @@ export interface operations {
             };
         };
     };
-    update_1: {
+    update: {
         parameters: {
             query?: never;
             header?: never;
@@ -553,6 +529,78 @@ export interface operations {
             };
         };
     };
+    togglePublic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": boolean;
+                };
+            };
+        };
+    };
+    changeName: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": string;
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+        };
+    };
+    changeSecretId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": {
+                        [key: string]: string;
+                    };
+                };
+            };
+        };
+    };
     findById_2: {
         parameters: {
             query?: never;
@@ -575,7 +623,7 @@ export interface operations {
             };
         };
     };
-    update_2: {
+    update_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -643,7 +691,7 @@ export interface operations {
             };
         };
     };
-    update_3: {
+    update_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -711,7 +759,7 @@ export interface operations {
             };
         };
     };
-    update_4: {
+    update_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -975,12 +1023,12 @@ export interface operations {
             };
         };
     };
-    getData: {
+    findById: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                userId: string;
+                id: number;
             };
             cookie?: never;
         };
@@ -992,34 +1040,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "*/*": components["schemas"]["UserData"][];
+                    "*/*": components["schemas"]["UserDto"];
                 };
             };
         };
     };
-    addData: {
+    delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                userId: string;
+                id: number;
             };
             cookie?: never;
         };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UserData"];
-            };
-        };
+        requestBody?: never;
         responses: {
             /** @description OK */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "*/*": components["schemas"]["UserData"];
-                };
+                content?: never;
             };
         };
     };
@@ -1041,6 +1083,28 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["SkillDto"][];
+                };
+            };
+        };
+    };
+    readSetting: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["SettingDto"];
                 };
             };
         };
