@@ -30,7 +30,7 @@ export const useAuthStore = defineStore('auth', {
       if (import.meta.client) {
         sessionStorage.removeItem('portfolio_user')
       }
-      navigateTo('/login')
+      navigateTo('/')
     },
 
     restoreSession() {

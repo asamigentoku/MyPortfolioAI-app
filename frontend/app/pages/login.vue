@@ -66,7 +66,7 @@ async function handleCredentialResponse(response: { credential: string }) {
     const userId = Number(data?.userId)
     if (accessToken) {
       auth.login({ userId:userId, name: data.userName, token: accessToken })
-      await navigateTo('/portfolio')
+      await navigateTo('/ai')
     }
   } catch (e: any) {
     error.value = 'ログインに失敗しました。もう一度お試しください。'

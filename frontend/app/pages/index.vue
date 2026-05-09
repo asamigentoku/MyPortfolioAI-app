@@ -1,12 +1,10 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-const techStacks = [
-  { label: 'フロントエンド', items: ['Nuxt 3', 'Vue.js', 'TypeScript', 'Pinia'] },
-  { label: 'バックエンド',   items: ['Spring Boot 3', 'Java 21', 'Spring Security', 'JWT'] },
-  { label: 'AI',             items: ['Spring AI', 'OpenAI', 'Gemini', 'Claude'] },
-  { label: 'インフラ',       items: ['PostgreSQL', 'Supabase', 'Render', 'Docker'] },
-]
+const auth = useAuthStore()
+if (auth.isLoggedIn) {
+  await navigateTo('/portfolio')
+}
 </script>
 
 <template>

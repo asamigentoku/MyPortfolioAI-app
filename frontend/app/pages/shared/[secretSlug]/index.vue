@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import type {components} from "~/pages/types/openapi";
 import {useApi} from "~/composables/useApi";
-import {useAuthStore} from "~/stores/auth";
-
-const auth = useAuthStore()
-const { user } = storeToRefs(auth)
 
 type CareerDto  = components['schemas']['CareerDto']
 type SkillDto   = components['schemas']['SkillDto']
@@ -29,26 +25,26 @@ const careers  = ref<CareerDto[]>([])
 const skills   = ref<SkillDto[]>([])
 const licenses = ref<LicenseDto[]>([])
 const projects = ref<ProjectDto[]>([])
+const ownerName = ref<string>('')
 
 const loading = ref(true)
 
-const userId = computed(() => auth.user?.userId ?? 0)
+const route = useRoute()
+const secretSlug = route.params.secretSlug as string
 
 async function fetchAll() {
   loading.value = true
-  const id = userId.value
-
-  const [c, s, l, p] = await Promise.all([
-    client.GET('/api/v1/careers/user/{userId}',  { params: { path: { userId: id } } }),
-    client.GET('/api/v1/skills/user/{userId}',   { params: { path: { userId: id } } }),
-    client.GET('/api/v1/licenses/user/{userId}', { params: { path: { userId: id } } }),
-    client.GET('/api/v1/project/user/{userId}',  { params: { path: { userId: id } } }),
-  ])
-  careers.value  = (c.data  as CareerDto[]  ?? [])
-  skills.value   = (s.data  as SkillDto[]   ?? [])
-  licenses.value = (l.data  as LicenseDto[] ?? [])
-  projects.value = (p.data  as ProjectDto[] ?? [])
-  loading.value  = false
+  const { data } = await client.GET('/api/v1/public-profile/slug/{secretSlug}', {
+    params: { path: { secretSlug } },
+  })
+  if (data) {
+    ownerName.value  = data.user?.name ?? ''
+    careers.value  = (data.careers  as CareerDto[]  ?? [])
+    skills.value   = (data.skills   as SkillDto[]   ?? [])
+    licenses.value = (data.licenses as LicenseDto[] ?? [])
+    projects.value = (data.projects as ProjectDto[] ?? [])
+  }
+  loading.value = false
 }
 onMounted(fetchAll)
 
@@ -94,7 +90,6 @@ function toggleSkill(s: Skill) {
   activeSkillName.value = activeSkillName.value === s.name ? null : s.name
 }
 
-definePageMeta({ layout: 'menu' })
 </script>
 
 <template>
@@ -104,11 +99,11 @@ definePageMeta({ layout: 'menu' })
     <header class="hero">
       <div class="hero-inner">
         <div class="hero-avatar">
-          <span class="hero-initials">{{ user?.name?.slice(0, 1) ?? '?' }}</span>
+          <span class="hero-initials">{{ ownerName.slice(0, 1) || '?' }}</span>
         </div>
         <div class="hero-body">
           <p class="eyebrow">Portfolio</p>
-          <h1 class="h-name">{{ user?.name }}</h1>
+          <h1 class="h-name">{{ ownerName }}</h1>
           <p class="h-sub">Senior Backend Engineer &amp; Full-Stack Developer</p>
         </div>
       </div>

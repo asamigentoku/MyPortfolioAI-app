@@ -1,8 +1,19 @@
 <script setup lang="ts">
 import { useRouter, useRoute } from 'vue-router'
+import { useAuthStore } from '~/stores/auth'
 
 const router = useRouter()
 const route = useRoute()
+const auth = useAuthStore()
+const { user } = storeToRefs(auth)
+
+const menuOpen = ref(false)
+
+function toggleMenu() { menuOpen.value = !menuOpen.value }
+function logout() {
+  menuOpen.value = false
+  auth.logout()
+}
 
 type MenuItem = 'home' | 'browse' | 'create' | 'settings'
 
@@ -78,15 +89,19 @@ function navigate(to: string) {
 
     <!-- Right side actions -->
     <div class="actions">
-      <button class="action-btn" title="通知">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-        </svg>
-        <span class="notif-dot" />
-      </button>
-      <div class="avatar">
-        <span>田</span>
+      <div class="avatar-wrap">
+        <div class="avatar" @click="toggleMenu">
+          <span>{{ user?.name?.slice(0, 1) ?? '?' }}</span>
+        </div>
+        <div v-if="menuOpen" class="avatar-dropdown">
+          <div class="dropdown-name">{{ user?.name }}</div>
+          <button class="dropdown-logout" @click="logout">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            ログアウト
+          </button>
+        </div>
       </div>
     </div>
   </nav>
@@ -269,5 +284,53 @@ function navigate(to: string) {
 
 .avatar:hover {
   opacity: 0.85;
+}
+
+.avatar-wrap {
+  position: relative;
+}
+
+.avatar-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 148px;
+  background: #1a1a1f;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 6px;
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.dropdown-name {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 6px 10px 8px;
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: #f87171;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.dropdown-logout:hover {
+  background: rgba(248, 113, 113, 0.1);
 }
 </style>
