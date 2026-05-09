@@ -27,18 +27,21 @@ const licenses = ref<LicenseDto[]>([])
 const projects = ref<ProjectDto[]>([])
 const ownerName = ref<string>('')
 
-const loading = ref(true)
+const loading  = ref(true)
+const notFound = ref(false)
 
 const route = useRoute()
 const secretSlug = route.params.secretSlug as string
 
 async function fetchAll() {
   loading.value = true
-  const { data } = await client.GET('/api/v1/public-profile/slug/{secretSlug}', {
+  const { data, error } = await client.GET('/api/v1/public-profile/slug/{secretSlug}', {
     params: { path: { secretSlug } },
   })
-  if (data) {
-    ownerName.value  = data.user?.name ?? ''
+  if (error || !data) {
+    notFound.value = true
+  } else {
+    ownerName.value = data.user?.name ?? ''
     careers.value  = (data.careers  as CareerDto[]  ?? [])
     skills.value   = (data.skills   as SkillDto[]   ?? [])
     licenses.value = (data.licenses as LicenseDto[] ?? [])
@@ -94,6 +97,20 @@ function toggleSkill(s: Skill) {
 
 <template>
   <div class="pg">
+
+    <!-- Not Found -->
+    <div v-if="notFound" class="not-found">
+      <div class="not-found-icon">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <h1 class="not-found-title">ページが見つかりません</h1>
+      <p class="not-found-desc">URLが正しくないか、このポートフォリオは非公開に設定されています。</p>
+      <NuxtLink to="/" class="not-found-btn">トップへ戻る</NuxtLink>
+    </div>
+
+    <template v-else>
 
     <!-- Hero -->
     <header class="hero">
@@ -268,6 +285,7 @@ function toggleSkill(s: Skill) {
       </section>
 
     </div>
+    </template><!-- v-else -->
   </div>
 </template>
 
@@ -276,6 +294,53 @@ function toggleSkill(s: Skill) {
   font-family: -apple-system, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
   padding-bottom: 4rem;
 }
+
+/* ── Not Found ── */
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  text-align: center;
+  padding: 40px 24px;
+}
+.not-found-icon {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.not-found-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111;
+  margin: 0;
+}
+.not-found-desc {
+  font-size: 13.5px;
+  color: #9ca3af;
+  line-height: 1.7;
+  max-width: 340px;
+  margin: 0;
+}
+.not-found-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 22px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  margin-top: 8px;
+  transition: opacity .18s;
+}
+.not-found-btn:hover { opacity: .88; }
 
 /* ── Hero ── */
 .hero {
