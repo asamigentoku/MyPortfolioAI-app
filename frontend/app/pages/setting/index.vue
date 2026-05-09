@@ -22,7 +22,7 @@ const nameChange = reactive({ saving: false, status: 'idle' as 'idle' | 'success
 const copied = ref(false)
 
 const publicUrl = computed(() => {
-  if (!userId.value) return ''
+  if (!import.meta.client || !slug.value) return ''
   return `${window.location.origin}/shared/${slug.value}`
 })
 
@@ -32,13 +32,13 @@ function setStatus(state: { status: 'idle' | 'success' | 'error' }, val: 'succes
 }
 
 onMounted(async () => {
-  if (!userId.value) return
   try {
+    if (!userId.value) return
     const { data } = await client.GET('/api/v1/settings/read_setting/{userId}', {
       params: { path: { userId: userId.value } },
     })
     isPublic.value = data?.isPublic ?? false
-    slug.value = data?.secretSlug ?? "sample"
+    slug.value = data?.secretSlug ?? ''
   } finally {
     loading.value = false
   }
