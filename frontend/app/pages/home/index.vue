@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
 import { useApi } from '~/composables/useApi'
-import type { components } from '~/types/openapi'
+import type { components } from '../types/openapi'
 
 definePageMeta({ layout: 'menu' })
 

@@ -61,10 +61,11 @@ async function handleCredentialResponse(response: { credential: string }) {
     const { data } = await client.POST('/api/v1/auth/google', {
       body: { token: response.credential },
     })
+    console.log(data)
     const accessToken = data?.token || data?.accessToken
     const userId = Number(data?.userId)
     if (accessToken) {
-      auth.login({ userId, name: data.userName, token: accessToken })
+      auth.login({ userId:userId, name: data.userName, token: accessToken })
       await navigateTo('/portfolio')
     }
   } catch (e: any) {

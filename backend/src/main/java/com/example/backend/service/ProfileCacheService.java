@@ -2,6 +2,7 @@ package com.example.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +24,22 @@ public class ProfileCacheService {
     public String save(JsonNode profile) throws Exception {
         String key = "profile:" + UUID.randomUUID();
         String json = objectMapper.writeValueAsString(profile);
-        redisTemplate.opsForValue().set(key, json, Duration.ofMinutes(30));
+        try {
+            redisTemplate.opsForValue().set(key, json, Duration.ofMinutes(30));
+        } catch (RedisConnectionFailureException e) {
+            throw new IllegalStateException("Redisに接続できません。サービスが起動しているか確認してください。", e);
+        }
         return key;
     }
 
     // 取得
     public JsonNode get(String key) throws Exception {
-        String json = redisTemplate.opsForValue().get(key);
+        String json;
+        try {
+            json = redisTemplate.opsForValue().get(key);
+        } catch (RedisConnectionFailureException e) {
+            throw new IllegalStateException("Redisに接続できません。サービスが起動しているか確認してください。", e);
+        }
         if (json == null) return null;
         return objectMapper.readTree(json);
     }

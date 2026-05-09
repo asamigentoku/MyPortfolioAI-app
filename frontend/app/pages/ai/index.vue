@@ -1,35 +1,44 @@
 <script setup lang="ts">
+import type { components } from '../types/openapi'
+import { useAuthStore } from '~/stores/auth'
+import { useProfileStructureStore } from '~/stores/portfolio_cache'
 
 definePageMeta({ layout: 'menu' })
 
+type ProfileStructureResponse = components['schemas']['ProfileStructureResponse']
+
 const client = useApi()
+const auth = useAuthStore()
+const profileStore = useProfileStructureStore()
+const userId = computed(() => auth.user?.userId)
 
 const profileText = ref('')
 const loading = ref(false)
 const error = ref('')
-const result = ref<{
-  cacheKey?: string
-  careers?: unknown
-  licenses?: unknown
-  projects?: unknown
-  skills?: unknown
-} | null>(null)
 
 const charCount = computed(() => profileText.value.length)
 const canSubmit = computed(() => profileText.value.trim().length > 0 && !loading.value)
+
+const hasPrev = computed(() => profileStore.hasPrev)
+const hasNext = computed(() => profileStore.hasNext)
+const historyLabel = computed(() => profileStore.historyLabel)
 
 async function generate() {
   if (!canSubmit.value) return
   loading.value = true
   error.value = ''
-  result.value = null
+  profileStore.setResult(null)
 
   try {
     const { data, error: apiError } = await client.POST('/api/v1/make_portfolio/profile-structure', {
       body: { profileInfo: profileText.value },
     })
     if (apiError) throw new Error('APIエラーが発生しました')
-    result.value = data ?? null
+    profileStore.setResult(data ?? null)
+
+    if (data?.cacheKey) {
+      profileStore.addCacheKey(data.cacheKey)
+    }
   } catch (e: any) {
     error.value = e.message || '生成に失敗しました。もう一度お試しください。'
   } finally {
@@ -37,15 +46,46 @@ async function generate() {
   }
 }
 
-function reset() {
-  result.value = null
+async function loadByIndex(index: number) {
+  if (index < 0 || index >= profileStore.cacheKeys.length) return
+  loading.value = true
   error.value = ''
+
+  try {
+    const { data } = await client.POST('/api/v1/make_portfolio/profile-structure/cache_key', {
+      body: profileStore.cacheKeys[index],
+    })
+    profileStore.setResult(data ?? null)
+    profileStore.setIndex(index)
+  } catch (e: any) {
+    error.value = e.message || '取得に失敗しました。'
+  } finally {
+    loading.value = false
+  }
 }
+
+async function savePortfolio() {
+  if (!profileStore.result?.cacheKey || !userId.value) return
+  loading.value = true
+  error.value = ''
+  try {
+    const { error: apiError } = await client.POST('/api/v1/make_portfolio/profile-structure/save', {
+      body: { cacheKey: profileStore.result.cacheKey, userId: userId.value },
+    })
+    if (apiError) throw new Error('保存に失敗しました')
+    await navigateTo('/portfolio')
+  } catch (e: any) {
+    error.value = e.message || '保存に失敗しました。もう一度お試しください。'
+  } finally {
+    loading.value = false
+  }
+}
+function goPrev() { if (hasPrev.value) loadByIndex(profileStore.currentIndex - 1) }
+function goNext() { if (hasNext.value) loadByIndex(profileStore.currentIndex + 1) }
 </script>
 
 <template>
   <div class="page">
-
     <!-- ページヘッダー -->
     <div class="page-header">
       <div class="header-icon">
@@ -63,7 +103,7 @@ function reset() {
     <div class="content">
 
       <!-- 入力パネル -->
-      <div class="panel" :class="{ dimmed: !!result }">
+      <div class="panel">
         <div class="panel-head">
           <span class="panel-label">プロフィール入力</span>
           <span class="char-count" :class="{ warn: charCount > 2000 }">{{ charCount.toLocaleString() }} 文字</span>
@@ -112,60 +152,51 @@ function reset() {
       </div>
 
       <!-- 結果 -->
-      <div v-if="result" class="result">
-        <div class="result-head">
-          <div class="result-title-wrap">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            <span class="result-title">生成完了</span>
+      <template v-if="profileStore.result">
+
+        <!-- 保存・ナビゲーションバー -->
+        <div class="history-bar">
+          <!-- 矢印ナビ（保存済みキーが2件以上あるとき表示） -->
+          <div class="nav-group" v-if="profileStore.cacheKeys.length > 1">
+            <button
+                class="nav-btn"
+                :disabled="!hasPrev || loading"
+                @click="goPrev"
+                title="前の結果"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+              </svg>
+            </button>
+            <span class="nav-label">{{ historyLabel }}</span>
+            <button
+                class="nav-btn"
+                :disabled="!hasNext || loading"
+                @click="goNext"
+                title="次の結果"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
           </div>
-          <button class="btn-reset" @click="reset">やり直す</button>
+
+          <div class="bar-actions">
+            <button
+                class="btn-save"
+                :disabled="loading"
+                @click="savePortfolio"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+              </svg>
+              保存する
+            </button>
+          </div>
         </div>
 
-        <!-- 各セクション -->
-        <div class="result-sections">
-          <div v-if="result.careers" class="result-sec">
-            <div class="result-sec-label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
-              </svg>
-              経歴
-            </div>
-            <pre class="result-json">{{ JSON.stringify(result.careers, null, 2) }}</pre>
-          </div>
-
-          <div v-if="result.skills" class="result-sec">
-            <div class="result-sec-label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
-              </svg>
-              スキル
-            </div>
-            <pre class="result-json">{{ JSON.stringify(result.skills, null, 2) }}</pre>
-          </div>
-
-          <div v-if="result.licenses" class="result-sec">
-            <div class="result-sec-label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
-              </svg>
-              資格
-            </div>
-            <pre class="result-json">{{ JSON.stringify(result.licenses, null, 2) }}</pre>
-          </div>
-
-          <div v-if="result.projects" class="result-sec">
-            <div class="result-sec-label">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-              </svg>
-              プロジェクト
-            </div>
-            <pre class="result-json">{{ JSON.stringify(result.projects, null, 2) }}</pre>
-          </div>
-        </div>
-      </div>
+        <AiPortfolioResult :result="profileStore.result" />
+      </template>
 
     </div>
   </div>
@@ -222,7 +253,6 @@ function reset() {
   overflow: hidden;
   transition: opacity .2s;
 }
-.panel.dimmed { opacity: .5; pointer-events: none; }
 
 .panel-head {
   display: flex;
@@ -326,78 +356,85 @@ function reset() {
   font-size: 13px;
 }
 
-/* ── 結果 ── */
-.result {
-  background: var(--color-background-primary, #fff);
-  border: 0.5px solid var(--color-border-tertiary, #e5e7eb);
-  border-radius: 14px;
-  overflow: hidden;
-}
-.result-head {
+/* ── 履歴バー ── */
+.history-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 0.5px solid var(--color-border-tertiary, #e5e7eb);
+  padding: 10px 14px;
+  border-radius: 12px;
   background: var(--color-background-secondary, #f9fafb);
-}
-.result-title-wrap {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.result-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: #059669;
-}
-.btn-reset {
-  font-size: 12px;
-  color: var(--color-text-tertiary, #9ca3af);
-  background: none;
   border: 0.5px solid var(--color-border-tertiary, #e5e7eb);
-  border-radius: 7px;
-  padding: 4px 12px;
-  cursor: pointer;
-  font-family: 'Noto Sans JP', sans-serif;
-  transition: color .15s, background .15s;
-}
-.btn-reset:hover {
-  color: var(--color-text-primary, #111);
-  background: var(--color-background-secondary, #f3f4f6);
+  gap: 12px;
 }
 
-.result-sections { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
-.result-sec {}
-.result-sec-label {
+/* 矢印ナビグループ */
+.nav-group {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary, #9ca3af);
-  margin-bottom: 8px;
 }
-.result-json {
-  font-size: 12px;
-  line-height: 1.7;
-  background: var(--color-background-secondary, #f9fafb);
-  border: 0.5px solid var(--color-border-tertiary, #e5e7eb);
+.nav-btn {
+  width: 30px; height: 30px;
   border-radius: 8px;
-  padding: 12px 14px;
-  overflow-x: auto;
-  color: var(--color-text-primary, #374151);
-  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
-  white-space: pre-wrap;
-  word-break: break-word;
-  margin: 0;
+  border: 0.5px solid var(--color-border-tertiary, #e5e7eb);
+  background: var(--color-background-primary, #fff);
+  color: var(--color-text-secondary, #6b7280);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background .15s, opacity .15s;
+  padding: 0;
 }
+.nav-btn:hover:not(:disabled) {
+  background: var(--color-background-tertiary, #f3f4f6);
+}
+.nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.nav-label {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-tertiary, #9ca3af);
+  min-width: 36px;
+  text-align: center;
+}
+
+/* アクションボタングループ */
+.bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #7c3aed, #2563eb);
+  color: #fff;
+  font-size: 12.5px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(124,58,237,.25);
+  transition: opacity .18s, transform .15s;
+  white-space: nowrap;
+}
+.btn-save:hover:not(:disabled) { opacity: .88; transform: translateY(-1px); }
+.btn-save:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
 
 @media (max-width: 640px) {
   .page { padding: 20px 16px 40px; }
   .panel-foot { flex-direction: column; align-items: flex-start; }
   .btn-generate { width: 100%; justify-content: center; }
+  .history-bar { flex-wrap: wrap; }
+  .bar-actions { width: 100%; }
+  .btn-save { flex: 1; justify-content: center; }
 }
 </style>

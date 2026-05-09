@@ -1,6 +1,6 @@
 // composables/useApi.ts
 import createClient from "openapi-fetch";
-import type { paths } from "../../types/openapi"; // 生成した型定義のパス
+import type { paths } from "../pages/types/openapi"; // 生成した型定義のパス
 
 export const useApi = () => {
     const config = useRuntimeConfig();

@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import type {components} from "~/pages/types/openapi";
+import {useApi} from "~/composables/useApi";
+import {useAuthStore} from "~/stores/auth";
 
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
+const auth = useAuthStore()
+const { user } = storeToRefs(auth)
+
+type CareerDto  = components['schemas']['CareerDto']
+type SkillDto   = components['schemas']['SkillDto']
+type LicenseDto = components['schemas']['LicenseDto']
+type ProjectDto = components['schemas']['ProjectDto']
+
+const client = useApi()
 
 interface Skill {
   name: string
@@ -14,63 +24,33 @@ interface Skill {
 interface Career  { careerName: string; time: string }
 interface License { licenseName: string; createdAt: string }
 interface Project { title: string; explanation: string; url: string | null; githubUrl: string | null; isGithub: boolean; skills: Skill[] }
-interface Profile { careers: Career[]; licenses: License[]; projects: Project[]; skills: Skill[] }
 
-const profile: Profile = {
-  careers: [
-    { careerName: '株式会社テックイノベーション — シニアバックエンドエンジニア', time: '2022-04-01T00:00:00' },
-    { careerName: '合同会社クリエイティブラボ — フルスタックエンジニア',         time: '2019-07-01T00:00:00' },
-    { careerName: '○○大学 情報工学科 卒業',                                      time: '2019-03-01T00:00:00' },
-  ],
-  licenses: [
-    { licenseName: '応用情報技術者試験',                              createdAt: '2021-11-01' },
-    { licenseName: 'AWS Certified Solutions Architect – Associate', createdAt: '2022-08-15' },
-    { licenseName: 'Google Cloud Professional Data Engineer',       createdAt: '2023-05-20' },
-  ],
-  projects: [
-    {
-      title: 'AIポートフォリオ生成サービス',
-      explanation: 'Groq LLMを活用し、自然言語のプロフィール文から構造化されたポートフォリオJSONを自動生成するWebサービス。Spring Boot + Nuxt 3で構築。',
-      url: 'https://portfolio-ai.example.com', githubUrl: 'https://github.com/example/portfolio-ai', isGithub: true,
-      skills: [
-        { name: 'Spring Boot', level: 4, description: 'REST API', isFramework: true,  category: 'Backend'  },
-        { name: 'Nuxt 3',      level: 4, description: 'SSR',      isFramework: true,  category: 'Frontend' },
-        { name: 'Groq API',    level: 3, description: 'LLM呼出', isFramework: false, category: 'ML'       },
-      ],
-    },
-    {
-      title: 'リアルタイム在庫管理ダッシュボード',
-      explanation: 'WebSocketを用いたリアルタイム在庫追跡システム。複数倉庫の在庫状況を一元管理し、低在庫アラートを自動送信。',
-      url: null, githubUrl: 'https://github.com/example/inventory-dash', isGithub: true,
-      skills: [
-        { name: 'Vue 3',      level: 5, description: 'Composition API', isFramework: true,  category: 'Frontend'  },
-        { name: 'PostgreSQL', level: 4, description: 'クエリ最適化',    isFramework: false, category: 'Database' },
-        { name: 'Docker',     level: 3, description: 'コンテナ化',      isFramework: false, category: 'DevOps'   },
-      ],
-    },
-    {
-      title: 'MLモデル監視プラットフォーム',
-      explanation: '本番MLモデルのドリフト検知・精度モニタリングを自動化するプラットフォーム。Pythonバックエンドと可視化ダッシュボードで構成。',
-      url: 'https://mlops.example.com', githubUrl: null, isGithub: false,
-      skills: [
-        { name: 'Python',       level: 5, description: 'データ処理',         isFramework: false, category: 'Language' },
-        { name: 'FastAPI',      level: 4, description: '非同期APIサーバー',  isFramework: true,  category: 'Backend'  },
-        { name: 'scikit-learn', level: 3, description: 'ドリフト検知',       isFramework: true,  category: 'ML'       },
-      ],
-    },
-  ],
-  skills: [
-    { name: 'Java',         level: 5, description: 'Spring Bootを用いた大規模業務システムの設計・開発。マイクロサービス化、パフォーマンスチューニングの経験あり。', isFramework: false, category: 'Language' },
-    { name: 'TypeScript',   level: 4, description: '型定義によるコード品質向上と補完の恩恵を活かしたフロントエンド・バックエンド開発。Vue/Nuxtとの組み合わせが得意。', isFramework: false, category: 'Language' },
-    { name: 'Python',       level: 4, description: 'MLパイプライン構築、データ前処理、FastAPIを使ったAPI開発。scikit-learnやPandasを使ったデータ分析も対応。', isFramework: false, category: 'Language' },
-    { name: 'Vue 3 / Nuxt', level: 5, description: 'Composition APIとscript setupによるSPA/SSR開発。Piniaによる状態管理、Nuxt 3のサーバーサイド機能を活用した本番運用経験あり。', isFramework: true,  category: 'Frontend' },
-    { name: 'Spring Boot',  level: 4, description: 'RESTful API設計・実装、セキュリティ設定、DBトランザクション管理。JUnit・Mockitoを使ったテスト駆動開発にも対応。', isFramework: true,  category: 'Backend'  },
-    { name: 'FastAPI',      level: 3, description: 'PythonによるAsync対応の軽量APIサーバー構築。Pydanticを使ったバリデーションとSwagger UIの自動生成が便利。', isFramework: true,  category: 'Backend'  },
-    { name: 'PostgreSQL',   level: 4, description: 'インデックス設計・EXPLAINによるクエリ最適化。JSONB型の活用や複雑なJOINを含む設計も経験済み。', isFramework: false, category: 'Database' },
-    { name: 'Docker / K8s', level: 3, description: 'Docker Composeによるローカル開発環境の整備とKubernetesを使った本番デプロイ。CI/CDパイプラインへの組み込みも対応。', isFramework: false, category: 'DevOps'   },
-    { name: 'AWS',          level: 3, description: 'EC2・RDS・Lambdaを用いたクラウドインフラ構築。Solutions Architect Associateを取得済み。コスト最適化の意識あり。', isFramework: false, category: 'DevOps'   },
-  ],
+const careers  = ref<CareerDto[]>([])
+const skills   = ref<SkillDto[]>([])
+const licenses = ref<LicenseDto[]>([])
+const projects = ref<ProjectDto[]>([])
+
+const loading = ref(true)
+
+const userId = computed(() => auth.user?.userId ?? 0)
+
+async function fetchAll() {
+  loading.value = true
+  const id = userId.value
+
+  const [c, s, l, p] = await Promise.all([
+    client.GET('/api/v1/careers/user/{userId}',  { params: { path: { userId: id } } }),
+    client.GET('/api/v1/skills/user/{userId}',   { params: { path: { userId: id } } }),
+    client.GET('/api/v1/licenses/user/{userId}', { params: { path: { userId: id } } }),
+    client.GET('/api/v1/project/user/{userId}',  { params: { path: { userId: id } } }),
+  ])
+  careers.value  = (c.data  as CareerDto[]  ?? [])
+  skills.value   = (s.data  as SkillDto[]   ?? [])
+  licenses.value = (l.data  as LicenseDto[] ?? [])
+  projects.value = (p.data  as ProjectDto[] ?? [])
+  loading.value  = false
 }
+onMounted(fetchAll)
 
 const catMeta: Record<string, { bg: string; text: string; bar: string }> = {
   Language: { bg: '#EEEDFE', text: '#3C3489', bar: '#7F77DD' },
@@ -102,7 +82,7 @@ function levelLabel(n: number) { return levelLabels[n] ?? '' }
 
 const skillGroups = computed(() => {
   const map: Record<string, Skill[]> = {}
-  for (const s of profile.skills) {
+  for (const s of skills.value) {
     (map[s.category] ??= []).push(s)
   }
   return map
@@ -147,7 +127,7 @@ definePageMeta({ layout: 'menu' })
             <h2 class="card-title">経歴</h2>
           </div>
           <ol class="timeline">
-            <li v-for="(c, i) in profile.careers" :key="i" class="tl-item">
+            <li v-for="(c, i) in careers" :key="i" class="tl-item">
               <div class="tl-dot" />
               <div class="tl-content">
                 <time class="tl-time">{{ fd(c.time) }}</time>
@@ -165,7 +145,7 @@ definePageMeta({ layout: 'menu' })
             <h2 class="card-title">資格・認定</h2>
           </div>
           <ul class="lic-list">
-            <li v-for="(l, i) in profile.licenses" :key="i" class="lic-item">
+            <li v-for="(l, i) in licenses" :key="i" class="lic-item">
               <div class="lic-dot" />
               <div class="lic-body">
                 <p class="lic-name">{{ l.licenseName }}</p>
@@ -265,7 +245,7 @@ definePageMeta({ layout: 'menu' })
         </div>
 
         <div class="pj-grid">
-          <article v-for="(p, i) in profile.projects" :key="i" class="pj-card">
+          <article v-for="(p, i) in projects" :key="i" class="pj-card">
             <div class="pj-card-top">
               <div class="pj-num">{{ String(i + 1).padStart(2, '0') }}</div>
               <div class="pj-links">
