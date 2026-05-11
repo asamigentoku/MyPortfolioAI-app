@@ -3,9 +3,10 @@ import type { paths } from "../pages/types/openapi";
 
 export const useApi = () => {
     const auth = useAuthStore()
+    const { public: { apiBaseUrl } } = useRuntimeConfig()
 
     const client = createClient<paths>({
-        baseUrl: "http://localhost:8080",
+        baseUrl: apiBaseUrl,
     });
 
     client.use({
