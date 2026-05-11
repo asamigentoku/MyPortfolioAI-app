@@ -19,8 +19,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      googleClientId: '',   // NUXT_PUBLIC_GOOGLE_CLIENT_ID で上書きされる
-      apiBaseUrl: 'http://localhost:8080', // NUXT_PUBLIC_API_BASE_URL で上書きされる
+      // プロセス環境変数を直接参照する設定
+      googleClientId: process.env.NUXT_PUBLIC_GOOGLE_CLIENT_ID || '',
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
     },
-  }
+  },
 })
