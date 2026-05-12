@@ -1,30 +1,41 @@
-
 name: Build and Push to Amazon ECR (AMD64)
 
 on:
   push:
     branches:
-      - main  # mainブランチへのプッシュ時に実行（必要に応じて変更）
-  workflow_dispatch:  # 手動実行も可能
+      - main
+  workflow_dispatch:
 
 env:
   AWS_REGION: ap-northeast-1
   ECR_REGISTRY: 530245419544.dkr.ecr.ap-northeast-1.amazonaws.com
   ECR_REPOSITORY: myportfolio_spring
   IMAGE_TAG: latest
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build-and-push:
     name: Build and Push Docker Image (AMD64)
-    runs-on: ubuntu-latest  # ubuntu-latestはAMD64環境
+    runs-on: ubuntu-latest
 
     steps:
       # 1. リポジトリのチェックアウト
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
+      # 2. Java 21のセットアップ
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
 
-      # 2. AWS認証情報の設定
+      # 3. GradleでSpring Bootをビルド（jarを生成）
+      - name: Build with Gradle
+        working-directory: ./backend
+        run: ./gradlew bootJar --no-daemon
+
+      # 4. AWS認証情報の設定
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
@@ -32,18 +43,18 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # 3. Amazon ECRへのログイン認証
+      # 5. Amazon ECRへのログイン認証
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      # 4. Docker Buildx のセットアップ（AMD64明示指定）
+      # 6. Docker Buildx のセットアップ
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 5. AMD64向けにDockerイメージをビルド＆ECRへプッシュ
+      # 7. AMD64向けにDockerイメージをビルド＆ECRへプッシュ
       - name: Build and push Docker image to ECR
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./backend
           platforms: linux/amd64
@@ -52,7 +63,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 6. プッシュ完了の通知
+      # 8. プッシュ完了の通知
       - name: Image pushed successfully
         run: |
           echo "✅ イメージのプッシュが完了しました"
