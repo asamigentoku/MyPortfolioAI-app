@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 //「継承していない独立したコントローラー」に対しても、外側から共通処理を適用できる仕組みになっています。
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.example.backend")
 public class GlobalExceptionHandler {
 
     // 404: 見つからない
