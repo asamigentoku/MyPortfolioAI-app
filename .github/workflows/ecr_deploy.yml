@@ -1,0 +1,58 @@
+
+name: Build and Push to Amazon ECR (AMD64)
+
+on:
+  push:
+    branches:
+      - main  # mainブランチへのプッシュ時に実行（必要に応じて変更）
+  workflow_dispatch:  # 手動実行も可能
+
+env:
+  AWS_REGION: ap-northeast-1
+  ECR_REGISTRY: 530245419544.dkr.ecr.ap-northeast-1.amazonaws.com
+  ECR_REPOSITORY: myportfolio_spring
+  IMAGE_TAG: latest
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image (AMD64)
+    runs-on: ubuntu-latest  # ubuntu-latestはAMD64環境
+
+    steps:
+      # 1. リポジトリのチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. AWS認証情報の設定
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # 3. Amazon ECRへのログイン認証
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 4. Docker Buildx のセットアップ（AMD64明示指定）
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # 5. AMD64向けにDockerイメージをビルド＆ECRへプッシュ
+      - name: Build and push Docker image to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          platforms: linux/amd64
+          push: true
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 6. プッシュ完了の通知
+      - name: Image pushed successfully
+        run: |
+          echo "✅ イメージのプッシュが完了しました"
+          echo "📦 イメージURI: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
