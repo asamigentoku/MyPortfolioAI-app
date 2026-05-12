@@ -23,6 +23,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
+
       # 2. AWS認証情報の設定
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5
