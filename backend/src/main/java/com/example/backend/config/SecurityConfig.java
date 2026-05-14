@@ -33,10 +33,12 @@ public class SecurityConfig {
                         //開発ように解放
                         //公開用
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/api/v1/public-profile/slug/**").permitAll()
                         //openapi用
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // それ以外は認証必要
+
 
                         .anyRequest().authenticated()
                 )
