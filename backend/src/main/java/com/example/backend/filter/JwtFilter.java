@@ -26,6 +26,10 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain chain) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
+        if (request.getRequestURI().startsWith("/actuator/health")) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
