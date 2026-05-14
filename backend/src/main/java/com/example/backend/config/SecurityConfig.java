@@ -2,6 +2,7 @@ package com.example.backend.config;
 
 import com.example.backend.filter.JwtFilter;
 import com.example.backend.util.JwtUtil;
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,7 +32,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         //開発ように解放
                         //公開用
-                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
                         .requestMatchers("/api/v1/public-profile/slug/**").permitAll()
                         //openapi用
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
