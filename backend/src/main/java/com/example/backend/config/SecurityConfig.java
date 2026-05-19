@@ -2,6 +2,8 @@ package com.example.backend.config;
 
 import com.example.backend.filter.JwtFilter;
 import com.example.backend.util.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
     private final JwtUtil jwtUtil;
 
     public SecurityConfig(JwtUtil jwtUtil) {
@@ -29,6 +33,16 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions(f -> f.disable())) // H2コンソール用
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((request, response, e) -> {
+                            log.warn("Unauthorized: uri={} error={}", request.getRequestURI(), e.getMessage());
+                            response.sendError(401, e.getMessage());
+                        })
+                        .accessDeniedHandler((request, response, e) -> {
+                            log.warn("Access denied: uri={} error={}", request.getRequestURI(), e.getMessage());
+                            response.sendError(403, e.getMessage());
+                        })
+                )
                 .authorizeHttpRequests(auth -> auth
                         // 認証用
                         .requestMatchers("/api/v1/auth/**").permitAll()
