@@ -2,6 +2,7 @@
 
 ### AIによる自動作成機能を搭載したフルスタックWebアプリケーション
 
+## URL https://main.d2h20uv0fglos5.amplifyapp.com
 Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と、AI（LLM）を活用した自動生成機能を統合したポートフォリオ作品です。
 
 ---
