@@ -46,6 +46,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 認証用
                         .requestMatchers("/api/v1/auth/**").permitAll()
+                        // Spring Boot エラーハンドリング用（/error が認証ループになるのを防ぐ）
+                        .requestMatchers("/error").permitAll()
                         //開発ように解放
                         //公開用
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()
@@ -54,8 +56,6 @@ public class SecurityConfig {
                         //openapi用
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         // それ以外は認証必要
-
-
                         .anyRequest().authenticated()
                 )
                 
