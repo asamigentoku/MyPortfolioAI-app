@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         // Spring Boot エラーハンドリング用（/error が認証ループになるのを防ぐ）
                         .requestMatchers("/error").permitAll()
+                        // ALBヘルスチェック用（/ へのアクセスを許可）
+                        .requestMatchers("/").permitAll()
                         //開発ように解放
                         //公開用
                         .requestMatchers(EndpointRequest.toAnyEndpoint()).permitAll()

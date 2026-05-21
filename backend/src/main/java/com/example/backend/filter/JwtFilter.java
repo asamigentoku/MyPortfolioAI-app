@@ -24,16 +24,25 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtUtil = jwtUtil;
     }
 
+    /** JWT処理をスキップするパス（認証不要なパスはフィルタ対象外にする） */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri.equals("/")
+                || uri.equals("/error")
+                || uri.startsWith("/actuator/")
+                || uri.startsWith("/api/v1/auth/")
+                || uri.startsWith("/api/v1/public-profile/slug/")
+                || uri.startsWith("/v3/api-docs/")
+                || uri.startsWith("/swagger-ui");
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain chain) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
-        if (request.getRequestURI().startsWith("/actuator/health")) {
-            chain.doFilter(request, response);
-            return;
-        }
 
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
