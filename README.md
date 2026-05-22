@@ -7,8 +7,6 @@ Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と�
 
 ---
 
-## URL: https://main.d2h20uv0fglos5.amplifyapp.com
-
 ## 💎 サービス概要
 
 エンジニアのポートフォリオ作成を支援するためのWebアプリケーションです。  
