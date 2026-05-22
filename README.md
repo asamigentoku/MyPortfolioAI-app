@@ -52,8 +52,10 @@ Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と�
 
 ---
 
-## 🏗 システム構成
+## ☁️ AWS構成について
+![img.png](img.png)
 
+## 🏗 システム構成
 
 ### 1. Frontend (Nuxt.js)
 - ユーザーインターフェース
@@ -72,8 +74,7 @@ Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と�
 
 ---
 
-## ☁️ AWS構成について
-![img.png](img.png)
+
 
 ### 構成概要
 
