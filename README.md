@@ -54,6 +54,7 @@ Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と�
 
 ## 🏗 システム構成
 
+
 ### 1. Frontend (Nuxt.js)
 - ユーザーインターフェース
 - API通信による非同期データ処理
