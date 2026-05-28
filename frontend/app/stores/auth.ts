@@ -21,26 +21,26 @@ export const useAuthStore = defineStore('auth', {
     login(user: AuthUser) {
       this.user = user
       if (import.meta.client) {
-        sessionStorage.setItem('portfolio_user', JSON.stringify(user))
+        localStorage.setItem('portfolio_user', JSON.stringify(user))
       }
     },
 
     logout() {
       this.user = null
       if (import.meta.client) {
-        sessionStorage.removeItem('portfolio_user')
+        localStorage.removeItem('portfolio_user')
       }
       navigateTo('/')
     },
 
     restoreSession() {
       if (import.meta.client) {
-        const stored = sessionStorage.getItem('portfolio_user')
+        const stored = localStorage.getItem('portfolio_user')
         if (stored) {
           try {
             this.user = JSON.parse(stored)
           } catch {
-            sessionStorage.removeItem('portfolio_user')
+            localStorage.removeItem('portfolio_user')
           }
         }
       }

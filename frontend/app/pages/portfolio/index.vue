@@ -3,9 +3,11 @@ import { computed, ref } from 'vue'
 import type {components} from "~/pages/types/openapi";
 import {useApi} from "~/composables/useApi";
 import {useAuthStore} from "~/stores/auth";
+import {usePortfolioDataStore} from "~/stores/portfolioData";
 
-const auth = useAuthStore()
-const { user } = storeToRefs(auth)
+const auth           = useAuthStore()
+const portfolioStore = usePortfolioDataStore()
+const { user }       = storeToRefs(auth)
 
 type CareerDto  = components['schemas']['CareerDto']
 type SkillDto   = components['schemas']['SkillDto']
@@ -25,10 +27,7 @@ interface Career  { careerName: string; time: string }
 interface License { licenseName: string; createdAt: string }
 interface Project { title: string; explanation: string; url: string | null; githubUrl: string | null; isGithub: boolean; skills: Skill[] }
 
-const careers  = ref<CareerDto[]>([])
-const skills   = ref<SkillDto[]>([])
-const licenses = ref<LicenseDto[]>([])
-const projects = ref<ProjectDto[]>([])
+const { careers, skills, licenses, projects } = storeToRefs(portfolioStore)
 
 const loading = ref(true)
 
@@ -44,11 +43,13 @@ async function fetchAll() {
     client.GET('/api/v1/licenses/user/{userId}', { params: { path: { userId: id } } }),
     client.GET('/api/v1/project/user/{userId}',  { params: { path: { userId: id } } }),
   ])
-  careers.value  = (c.data  as CareerDto[]  ?? [])
-  skills.value   = (s.data  as SkillDto[]   ?? [])
-  licenses.value = (l.data  as LicenseDto[] ?? [])
-  projects.value = (p.data  as ProjectDto[] ?? [])
-  loading.value  = false
+  portfolioStore.set({
+    careers:  (c.data as CareerDto[]  ?? []),
+    skills:   (s.data as SkillDto[]   ?? []),
+    licenses: (l.data as LicenseDto[] ?? []),
+    projects: (p.data as ProjectDto[] ?? []),
+  })
+  loading.value = false
 }
 onMounted(fetchAll)
 

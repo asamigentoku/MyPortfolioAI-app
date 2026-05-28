@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAuthStore } from '~/stores/auth'
+import { usePortfolioDataStore } from '~/stores/portfolioData'
 import { useApi } from '~/composables/useApi'
 import type { components } from '../types/openapi'
 
@@ -10,18 +11,16 @@ type SkillDto   = components['schemas']['SkillDto']
 type LicenseDto = components['schemas']['LicenseDto']
 type ProjectDto = components['schemas']['ProjectDto']
 
-const auth   = useAuthStore()
-const client = useApi()
+const auth          = useAuthStore()
+const portfolioStore = usePortfolioDataStore()
+const client        = useApi()
 
 const userId  = computed(() => auth.user?.userId ?? 0)
 const loading = ref(true)
 const tab     = ref<'career' | 'skill' | 'license' | 'project'>('career')
 
-// ── データ ──────────────────────────────────────
-const careers  = ref<CareerDto[]>([])
-const skills   = ref<SkillDto[]>([])
-const licenses = ref<LicenseDto[]>([])
-const projects = ref<ProjectDto[]>([])
+// ── データ（共有ストア経由）──────────────────────────────────────
+const { careers, skills, licenses, projects } = storeToRefs(portfolioStore)
 
 async function fetchAll() {
   loading.value = true
@@ -32,11 +31,13 @@ async function fetchAll() {
     client.GET('/api/v1/licenses/user/{userId}', { params: { path: { userId: id } } }),
     client.GET('/api/v1/project/user/{userId}',  { params: { path: { userId: id } } }),
   ])
-  careers.value  = (c.data  as CareerDto[]  ?? [])
-  skills.value   = (s.data  as SkillDto[]   ?? [])
-  licenses.value = (l.data  as LicenseDto[] ?? [])
-  projects.value = (p.data  as ProjectDto[] ?? [])
-  loading.value  = false
+  portfolioStore.set({
+    careers:  (c.data as CareerDto[]  ?? []),
+    skills:   (s.data as SkillDto[]   ?? []),
+    licenses: (l.data as LicenseDto[] ?? []),
+    projects: (p.data as ProjectDto[] ?? []),
+  })
+  loading.value = false
 }
 onMounted(fetchAll)
 
@@ -72,80 +73,76 @@ function defaultFor(t: string): Record<string, unknown> {
 async function saveCareer() {
   const b = editBuffer.value as CareerDto
   await client.PUT('/api/v1/careers/{id}', { params: { path: { id: b.id! } }, body: b })
-  const idx = careers.value.findIndex(x => x.id === b.id)
-  if (idx !== -1) careers.value[idx] = { ...b }
+  portfolioStore.updateCareer({ ...b })
   cancelEdit()
 }
 async function addCareer() {
   const b = addBuffer.value as CareerDto
   const { data } = await client.POST('/api/v1/careers', { body: b })
-  if (data) careers.value.push(data)
+  if (data) portfolioStore.addCareer(data)
   cancelAdd()
 }
 async function deleteCareer(id: number) {
   if (!confirm('削除しますか？')) return
   await client.DELETE('/api/v1/careers/{id}', { params: { path: { id } } })
-  careers.value = careers.value.filter(x => x.id !== id)
+  portfolioStore.removeCareer(id)
 }
 
 // ── スキル CRUD ──────────────────────────────────
 async function saveSkill() {
   const b = editBuffer.value as SkillDto
   await client.PUT('/api/v1/skills/{id}', { params: { path: { id: b.id! } }, body: b })
-  const idx = skills.value.findIndex(x => x.id === b.id)
-  if (idx !== -1) skills.value[idx] = { ...b }
+  portfolioStore.updateSkill({ ...b })
   cancelEdit()
 }
 async function addSkill() {
   const b = addBuffer.value as SkillDto
   const { data } = await client.POST('/api/v1/skills', { body: b })
-  if (data) skills.value.push(data)
+  if (data) portfolioStore.addSkill(data)
   cancelAdd()
 }
 async function deleteSkill(id: number) {
   if (!confirm('削除しますか？')) return
   await client.DELETE('/api/v1/skills/{id}', { params: { path: { id } } })
-  skills.value = skills.value.filter(x => x.id !== id)
+  portfolioStore.removeSkill(id)
 }
 
 // ── 資格 CRUD ──────────────────────────────────
 async function saveLicense() {
   const b = editBuffer.value as LicenseDto
   await client.PUT('/api/v1/licenses/{id}', { params: { path: { id: b.id! } }, body: b })
-  const idx = licenses.value.findIndex(x => x.id === b.id)
-  if (idx !== -1) licenses.value[idx] = { ...b }
+  portfolioStore.updateLicense({ ...b })
   cancelEdit()
 }
 async function addLicense() {
   const b = addBuffer.value as LicenseDto
   const { data } = await client.POST('/api/v1/licenses', { body: b })
-  if (data) licenses.value.push(data)
+  if (data) portfolioStore.addLicense(data)
   cancelAdd()
 }
 async function deleteLicense(id: number) {
   if (!confirm('削除しますか？')) return
   await client.DELETE('/api/v1/licenses/{id}', { params: { path: { id } } })
-  licenses.value = licenses.value.filter(x => x.id !== id)
+  portfolioStore.removeLicense(id)
 }
 
 // ── プロジェクト CRUD ──────────────────────────────────
 async function saveProject() {
   const b = editBuffer.value as ProjectDto
   await client.PUT('/api/v1/project/{id}', { params: { path: { id: b.id! } }, body: b })
-  const idx = projects.value.findIndex(x => x.id === b.id)
-  if (idx !== -1) projects.value[idx] = { ...b }
+  portfolioStore.updateProject({ ...b })
   cancelEdit()
 }
 async function addProject() {
   const b = addBuffer.value as ProjectDto
   const { data } = await client.POST('/api/v1/project', { body: b })
-  if (data) projects.value.push(data)
+  if (data) portfolioStore.addProject(data)
   cancelAdd()
 }
 async function deleteProject(id: number) {
   if (!confirm('削除しますか？')) return
   await client.DELETE('/api/v1/project/{id}', { params: { path: { id } } })
-  projects.value = projects.value.filter(x => x.id !== id)
+  portfolioStore.removeProject(id)
 }
 
 // ── タブ切り替え時にリセット ──────────────────────────────────

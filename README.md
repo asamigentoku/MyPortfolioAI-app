@@ -7,6 +7,12 @@ Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と�
 
 ---
 
+## デモ画面
+### ホーム、ログイン画面
+![home_img.png](home_img.png)
+### ログイン後の画面、AI生成部分
+![ai_img.png](ai_img.png)
+
 ## 💎 サービス概要
 
 エンジニアのポートフォリオ作成を支援するためのWebアプリケーションです。  
