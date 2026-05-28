@@ -16,16 +16,6 @@ type ProjectDto = components['schemas']['ProjectDto']
 
 const client = useApi()
 
-interface Skill {
-  name: string
-  level: number
-  description: string
-  isFramework: boolean
-  category: 'Backend' | 'Frontend' | 'Language' | 'Database' | 'DevOps' | 'ML' | 'Other'
-}
-interface Career  { careerName: string; time: string }
-interface License { licenseName: string; createdAt: string }
-interface Project { title: string; explanation: string; url: string | null; githubUrl: string | null; isGithub: boolean; skills: Skill[] }
 
 const { careers, skills, licenses, projects } = storeToRefs(portfolioStore)
 
@@ -62,7 +52,10 @@ const catMeta: Record<string, { bg: string; text: string; bar: string }> = {
   ML:       { bg: '#FBEAF0', text: '#72243E', bar: '#D4537E' },
   Other:    { bg: '#E6F1FB', text: '#0C447C', bar: '#378ADD' },
 }
-function cm(cat: string) { return catMeta[cat] ?? catMeta.Other }
+const defaultCat = { bg: '#E6F1FB', text: '#0C447C', bar: '#378ADD' }
+function cm(cat: string | undefined): { bg: string; text: string; bar: string } {
+  return catMeta[cat ?? ''] ?? defaultCat
+}
 
 const catLabel: Record<string, string> = {
   Language: '言語',
@@ -74,7 +67,8 @@ const catLabel: Record<string, string> = {
   Other:    'その他',
 }
 
-function fd(iso: string) {
+function fd(iso: string | undefined) {
+  if (!iso) return '—'
   return new Date(iso).toLocaleDateString('ja-JP', { year: 'numeric', month: 'short' })
 }
 
@@ -82,17 +76,17 @@ const levelLabels = ['', '初級', '初中級', '中級', '上級', 'エキス�
 function levelLabel(n: number) { return levelLabels[n] ?? '' }
 
 const skillGroups = computed(() => {
-  const map: Record<string, Skill[]> = {}
+  const map: Record<string, SkillDto[]> = {}
   for (const s of skills.value) {
-    (map[s.category] ??= []).push(s)
+    (map[s.category ?? 'Other'] ??= []).push(s)
   }
   return map
 })
 
 // クリックしたスキル名をキーに。同じスキルを再クリックで閉じる
 const activeSkillName = ref<string | null>(null)
-function toggleSkill(s: Skill) {
-  activeSkillName.value = activeSkillName.value === s.name ? null : s.name
+function toggleSkill(s: SkillDto) {
+  activeSkillName.value = activeSkillName.value === s.name ? null : (s.name ?? null)
 }
 
 definePageMeta({ layout: 'menu' })
@@ -194,7 +188,7 @@ definePageMeta({ layout: 'menu' })
                     <div class="meter-track">
                       <div
                           class="meter-fill"
-                          :style="{ width: s.level * 20 + '%', background: cm(String(cat)).bar }"
+                          :style="{ width: (s.level ?? 0) * 20 + '%', background: cm(String(cat)).bar }"
                       />
                     </div>
                     <div class="meter-ticks">
@@ -223,7 +217,7 @@ definePageMeta({ layout: 'menu' })
                       <div class="meter-track" style="flex:1; max-width:100px">
                         <div
                             class="meter-fill"
-                            :style="{ width: s.level * 20 + '%', background: cm(String(cat)).bar }"
+                            :style="{ width: (s.level ?? 0) * 20 + '%', background: cm(String(cat)).bar }"
                         />
                       </div>
                     </div>

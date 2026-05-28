@@ -53,7 +53,7 @@ async function loadByIndex(index: number) {
 
   try {
     const { data } = await client.POST('/api/v1/make_portfolio/profile-structure/cache_key', {
-      body: profileStore.cacheKeys[index],
+      body: profileStore.cacheKeys[index]!,
     })
     profileStore.setResult(data ?? null)
     profileStore.setIndex(index)
