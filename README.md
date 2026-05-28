@@ -11,6 +11,9 @@ Spring BootとNuxt.jsを組み合わせ、Googleログインによる認証と�
 ### ホーム、ログイン画面
 ![home_img.png](home_img.png)
 ---
+### googleログイン画面
+![google_login.png](google_login.png)
+---
 ### ログイン後の画面、AI生成ページ
 ![ai_img.png](ai_img.png)
 ---
