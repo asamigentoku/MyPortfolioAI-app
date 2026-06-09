@@ -11,7 +11,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Column(name = "ProviderId", nullable = true) // nullable = true でNULLを許可
+    @Column(name = "ProviderId", nullable = true, unique = true)
     private String providerId;
 
     @Column(name = "github_id", nullable = true)

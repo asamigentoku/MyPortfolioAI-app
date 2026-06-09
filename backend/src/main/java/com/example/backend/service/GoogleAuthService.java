@@ -6,6 +6,7 @@ import com.example.backend.repository.UserRepository;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class GoogleAuthService {
         this.googleTokenVerifier = googleTokenVerifier;
     }
 
+    @Transactional
     public User authenticate(String idToken, HttpServletRequest request) throws Exception {
 
         Payload payload = googleTokenVerifier.verify(idToken);
